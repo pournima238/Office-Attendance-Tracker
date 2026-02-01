@@ -1,0 +1,5 @@
+﻿node_modules/
+backend/attendance-tracker-backend/node_modules/
+backend/attendance-tracker-backend/dist/
+backend/attendance-tracker-backend/.env
+backend/attendance-tracker-backend/src/generated/

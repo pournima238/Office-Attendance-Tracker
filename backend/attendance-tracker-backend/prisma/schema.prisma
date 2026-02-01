@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  // Note: Prisma 7 often requires a custom output path 
+  // if you encounter "module not found" errors
+  output   = "../src/generated/prisma" 
+  moduleFormat = "esm"  
+}
+
+datasource db {
+  provider = "postgresql"
+  
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  email       String       @unique
+  name        String
+  attendances Attendance[]
+  password    String
+  createdAt   DateTime     @default(now())
+}
+
+model Attendance {
+  id        Int      @id @default(autoincrement())
+  date      DateTime
+  isPresent Boolean
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+}
