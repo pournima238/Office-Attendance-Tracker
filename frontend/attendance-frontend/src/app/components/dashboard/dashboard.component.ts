@@ -1,11 +1,4 @@
-import {
-  Component,
-  OnInit,
-  signal,
-  computed,
-  inject,
-  effect,
-} from '@angular/core';
+import { Component, OnInit, signal, computed, inject, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -23,7 +16,19 @@ export class DashboardComponent implements OnInit {
   daysInMonth = signal<Date[]>([]);
   serverData = signal<Map<string, string>>(new Map());
   modifiedData = signal<Map<string, string>>(new Map());
-  isSaveDisabled = computed(() => this.modifiedData().size === 0);
+  isLoading = signal(false);
+  
+  // Rules and Stats
+  officeGoal = 12;
+  officeDaysCount = computed(() => {
+    let count = 0;
+    this.daysInMonth().forEach(day => {
+      if (this.getDisplayType(day) === 'OFFICE') count++;
+    });
+    return count;
+  });
+
+ isSaveDisabled = computed(() => this.modifiedData().size === 0 || this.isLoading());
 
   constructor() {
     effect(() => {
@@ -39,23 +44,19 @@ export class DashboardComponent implements OnInit {
     const year = date.getFullYear();
     const month = date.getMonth();
     const daysCount = new Date(year, month + 1, 0).getDate();
-    const days = Array.from(
-      { length: daysCount },
-      (_, i) => new Date(year, month, i + 1),
-    );
+    const days = Array.from({ length: daysCount }, (_, i) => new Date(year, month, i + 1));
     this.daysInMonth.set(days);
   }
 
   fetchAttendance() {
     const date = this.viewDate();
-    const m = date.getMonth(); // Removed + 1. January is now 0, Feb is 1.
+    const m = date.getMonth();
     const y = date.getFullYear();
 
     this.auth.getAttendance(m, y).subscribe({
       next: (result: any) => {
         const dataMap = new Map();
         result.data.getMyAttendance.forEach((record: any) => {
-          // Use 'en-CA' to get YYYY-MM-DD format regardless of timezone
           const key = new Date(record.date).toLocaleDateString('en-CA');
           dataMap.set(key, record.type);
         });
@@ -66,12 +67,11 @@ export class DashboardComponent implements OnInit {
   }
 
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return date.toLocaleDateString('en-CA');
   }
 
   isToday(date: Date): boolean {
-    const today = new Date();
-    return this.formatDate(date) === this.formatDate(today);
+    return this.formatDate(date) === this.formatDate(new Date());
   }
 
   getDisplayType(day: Date): string {
@@ -79,11 +79,23 @@ export class DashboardComponent implements OnInit {
     return this.modifiedData().get(key) || this.serverData().get(key) || 'NONE';
   }
 
+  // Dynamic class helper for colors
+  getDayClasses(day: Date) {
+    const type = this.getDisplayType(day);
+    const key = this.formatDate(day);
+    return {
+      'today': this.isToday(day),
+      'is-modified': this.modifiedData().has(key),
+      [`type-${type.toLowerCase()}`]: true
+    };
+  }
+
   onTypeChange(day: Date, event: any) {
     const key = this.formatDate(day);
     const newValue = event.target.value;
     const originalValue = this.serverData().get(key) || 'NONE';
     const newMap = new Map(this.modifiedData());
+    
     if (newValue === originalValue) {
       newMap.delete(key);
     } else {
@@ -103,17 +115,19 @@ export class DashboardComponent implements OnInit {
     const payload = Array.from(this.modifiedData().entries())
       .map(([date, type]) => ({ date, type }))
       .filter((item) => item.type !== 'NONE');
+
     this.auth.saveMonthlyAttendance(payload).subscribe({
       next: (res) => {
         const updatedMap = new Map(this.serverData());
-        payload.forEach((item) => {
-          updatedMap.set(item.date, item.type);
-        });
+        payload.forEach((item) => updatedMap.set(item.date, item.type));
         this.serverData.set(updatedMap);
         this.modifiedData.set(new Map());
+        this.isLoading.set(false);
         alert('Attendance saved successfully!');
       },
-      error: (err) => console.error('Error:', err),
+      error: (err) => {
+        this.isLoading.set(false);
+        console.error('Error:', err)},
     });
   }
 }
