@@ -1,0 +1,46 @@
+<div class="dashboard-wrapper">
+  <header class="dashboard-header">
+    <div class="nav-container">
+      <button class="nav-btn" (click)="changeMonth(-1)">
+        <span class="arrow">&lsaquo;</span>
+      </button>
+      <div class="month-title">
+        <h1>{{ viewDate() | date:'MMMM' }}</h1>
+        <p>{{ viewDate() | date:'yyyy' }}</p>
+      </div>
+      <button class="nav-btn" (click)="changeMonth(1)">
+        <span class="arrow">&rsaquo;</span>
+      </button>
+    </div>
+    <div class="user-info">
+      Logged in: <strong>{{ auth.currentUser()?.name || 'User' }}</strong>
+    </div>
+  </header>
+
+  <main class="calendar-grid">
+    @for (day of daysInMonth(); track day) {
+      <div class="day-card" [class.today]="isToday(day)">
+        <div class="day-header">
+          <span class="day-name">{{ day | date:'EEE' }}</span>
+          <span class="date-num">{{ day | date:'dd' }}</span>
+        </div>
+        
+<select [value]="getDisplayType(day)" (change)="onTypeChange(day, $event)">
+  <option value="NONE">Select</option>
+  <option value="OFFICE">Office</option>
+  <option value="WFH">WFH</option>
+  <option value="LEAVE">Leave</option>
+  <option value="PUBLIC_HOLIDAY">Public Holiday</option> 
+</select>
+      </div>
+    }
+  </main>
+
+  <footer class="action-bar">
+    <button class="save-btn" 
+            [disabled]="isSaveDisabled()" 
+            (click)="saveChanges()">
+      {{ isSaveDisabled() ? 'No changes' : 'Save Monthly Attendance' }}
+    </button>
+  </footer>
+</div>
