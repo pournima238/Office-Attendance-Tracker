@@ -1,13 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
-  // Note: Prisma 7 often requires a custom output path 
-  // if you encounter "module not found" errors
   output   = "../src/generated/prisma" 
   moduleFormat = "esm"  
 }
@@ -21,15 +13,25 @@ model User {
   id          Int          @id @default(autoincrement())
   email       String       @unique
   name        String
-  attendances Attendance[]
   password    String
+  attendances Attendance[]
   createdAt   DateTime     @default(now())
 }
 
+enum AttendanceType {
+  OFFICE
+  WFH
+  LEAVE           
+  PUBLIC_HOLIDAY 
+}
+
 model Attendance {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  isPresent Boolean
+  id        Int            @id @default(autoincrement())
+  date      DateTime       // Store as 00:00:00 for calendar alignment
+  type      AttendanceType @default(WFH)
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
+  user      User           @relation(fields: [userId], references: [id])
+
+  // This ensures a user can't have two entries for the same date
+  @@unique([userId, date]) 
 }

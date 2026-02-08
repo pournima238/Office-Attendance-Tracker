@@ -7,10 +7,14 @@ import { PrismaModule } from './prisma/prisma.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { AppService } from './app.service.js';
 import { AppController } from './app.controller.js';
+import { AttendanceModule } from './attendance/attendance.module.js';
+import { ConfigModule } from '@nestjs/config';
+
 
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
@@ -19,6 +23,7 @@ import { AppController } from './app.controller.js';
     PrismaModule,
     UserModule,
     AuthModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

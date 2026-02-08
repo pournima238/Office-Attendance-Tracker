@@ -1,7 +1,7 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Args, registerEnumType } from '@nestjs/graphql';
 import { AuthService } from './auth.service.js';
 import { User } from '../user/user.entity.js';
-
+import { AuthPayload } from './auth-payload.entity.js';
 
 @Resolver()
 export class AuthResolver {
@@ -13,10 +13,15 @@ export class AuthResolver {
     @Args('name') name: string,
     @Args('password') pass: string,
   ) {
-    console.log("Resolver reached!");
     return this.authService.register(email, name, pass);
   }
 
-  // Note: For login, you'll usually want a custom "AuthPayload" type 
-  // that returns both the user and the access_token string.
+
+ @Mutation(() => AuthPayload)
+  async login(
+    @Args('email') email: string,
+    @Args('password') pass: string,
+  ) {
+    return this.authService.login(email, pass);
+  }
 }

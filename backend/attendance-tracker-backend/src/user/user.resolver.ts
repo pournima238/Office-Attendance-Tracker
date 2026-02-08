@@ -12,13 +12,4 @@ export class UserResolver {
   users() {
     return this.userService.findAll();
   }
-
-  @Mutation(() => User)
-  createUser(
-    @Args('email') email: string,
-    @Args('name') name: string,
-    @Args('password') password :string,
-  ) {
-    return this.userService.createUser(email, name,password);
-  }
 }
