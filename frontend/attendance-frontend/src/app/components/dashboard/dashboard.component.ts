@@ -1,4 +1,11 @@
-import { Component, OnInit, signal, computed, inject, effect } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  signal,
+  computed,
+  inject,
+  effect,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
@@ -17,18 +24,18 @@ export class DashboardComponent implements OnInit {
   serverData = signal<Map<string, string>>(new Map());
   modifiedData = signal<Map<string, string>>(new Map());
   isLoading = signal(false);
-  
-  // Rules and Stats
   officeGoal = 12;
   officeDaysCount = computed(() => {
     let count = 0;
-    this.daysInMonth().forEach(day => {
+    this.daysInMonth().forEach((day) => {
       if (this.getDisplayType(day) === 'OFFICE') count++;
     });
     return count;
   });
 
- isSaveDisabled = computed(() => this.modifiedData().size === 0 || this.isLoading());
+  isSaveDisabled = computed(
+    () => this.modifiedData().size === 0 || this.isLoading(),
+  );
 
   constructor() {
     effect(() => {
@@ -44,7 +51,10 @@ export class DashboardComponent implements OnInit {
     const year = date.getFullYear();
     const month = date.getMonth();
     const daysCount = new Date(year, month + 1, 0).getDate();
-    const days = Array.from({ length: daysCount }, (_, i) => new Date(year, month, i + 1));
+    const days = Array.from(
+      { length: daysCount },
+      (_, i) => new Date(year, month, i + 1),
+    );
     this.daysInMonth.set(days);
   }
 
@@ -79,14 +89,13 @@ export class DashboardComponent implements OnInit {
     return this.modifiedData().get(key) || this.serverData().get(key) || 'NONE';
   }
 
-  // Dynamic class helper for colors
   getDayClasses(day: Date) {
     const type = this.getDisplayType(day);
     const key = this.formatDate(day);
     return {
-      'today': this.isToday(day),
+      today: this.isToday(day),
       'is-modified': this.modifiedData().has(key),
-      [`type-${type.toLowerCase()}`]: true
+      [`type-${type.toLowerCase()}`]: true,
     };
   }
 
@@ -95,7 +104,6 @@ export class DashboardComponent implements OnInit {
     const newValue = event.target.value;
     const originalValue = this.serverData().get(key) || 'NONE';
     const newMap = new Map(this.modifiedData());
-    
     if (newValue === originalValue) {
       newMap.delete(key);
     } else {
@@ -115,7 +123,7 @@ export class DashboardComponent implements OnInit {
     const payload = Array.from(this.modifiedData().entries())
       .map(([date, type]) => ({ date, type }))
       .filter((item) => item.type !== 'NONE');
-
+    this.isLoading.set(true);
     this.auth.saveMonthlyAttendance(payload).subscribe({
       next: (res) => {
         const updatedMap = new Map(this.serverData());
@@ -127,7 +135,8 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading.set(false);
-        console.error('Error:', err)},
+        console.error('Error:', err);
+      },
     });
   }
 }

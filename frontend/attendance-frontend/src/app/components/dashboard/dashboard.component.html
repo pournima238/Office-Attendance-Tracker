@@ -1,31 +1,63 @@
+@if (isLoading()) {
+  <div class="global-loader-overlay">
+    <div class="loader-content">
+      <span class="main-spinner"></span>
+      <p>Saving your attendance...</p>
+    </div>
+  </div>
+}
 <div class="dashboard-wrapper">
   <header class="dashboard-header">
     <div class="nav-container">
       <button class="nav-btn" (click)="changeMonth(-1)">&lsaquo;</button>
       <div class="month-title">
-        <h1>{{ viewDate() | date:'MMMM' }}</h1>
-        <p>{{ viewDate() | date:'yyyy' }}</p>
+        <h1>{{ viewDate() | date: "MMMM" }}</h1>
+        <p>{{ viewDate() | date: "yyyy" }}</p>
       </div>
       <button class="nav-btn" (click)="changeMonth(1)">&rsaquo;</button>
     </div>
 
     <div class="tracker-container">
       <div class="tracker-info">
-        <span>Office Days: <strong>{{ officeDaysCount() }} / {{ officeGoal }}</strong></span>
+        <span
+          >Office Days:
+          <strong>{{ officeDaysCount() }} / {{ officeGoal }}</strong></span
+        >
         @if (officeDaysCount() >= officeGoal) {
           <span class="goal-reached">✔ Goal Met!</span>
         }
       </div>
       <div class="progress-bar">
-        <div class="progress-fill" 
-             [style.width.%]="(officeDaysCount() / officeGoal) * 100"
-             [class.goal-met]="officeDaysCount() >= officeGoal">
-        </div>
+        <div
+          class="progress-fill"
+          [style.width.%]="(officeDaysCount() / officeGoal) * 100"
+          [class.goal-met]="officeDaysCount() >= officeGoal"
+        ></div>
       </div>
     </div>
 
-    <div class="user-info">
-      Logged in: <strong>{{ auth.currentUser()?.name || 'User' }}</strong>
+    <div class="user-controls">
+      <div class="user-info">
+        Logged in: <strong>{{ auth.currentUser()?.name || "User" }}</strong>
+      </div>
+
+      <button class="logout-btn" (click)="auth.logout()" title="Logout">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
     </div>
   </header>
 
@@ -33,32 +65,40 @@
     @for (day of daysInMonth(); track day) {
       <div class="day-card" [ngClass]="getDayClasses(day)">
         <div class="day-header">
-          <span class="day-name">{{ day | date:'EEE' }}</span>
-          <span class="date-num">{{ day | date:'dd' }}</span>
+          <span class="day-name">{{ day | date: "EEE" }}</span>
+          <span class="date-num">{{ day | date: "dd" }}</span>
         </div>
-        
-        <select [value]="getDisplayType(day)" (change)="onTypeChange(day, $event)">
+
+        <select
+          [value]="getDisplayType(day)"
+          (change)="onTypeChange(day, $event)"
+        >
           <option value="NONE">Select</option>
           <option value="OFFICE">Office</option>
           <option value="WFH">WFH</option>
           <option value="LEAVE">Leave</option>
-          <option value="PUBLIC_HOLIDAY">Public Holiday</option> 
+          <option value="PUBLIC_HOLIDAY">Public Holiday</option>
         </select>
       </div>
     }
   </main>
 
-<footer class="action-bar">
-  <button class="save-btn" 
-          [disabled]="isSaveDisabled()" 
-          (click)="saveChanges()">
-    
-    @if (isLoading()) {
-      <span class="loader-spinner"></span>
-      Saving...
-    } @else {
-      {{ isSaveDisabled() && modifiedData().size === 0 ? 'No changes' : 'Save Monthly Attendance' }}
-    }
-  </button>
-</footer>
+  <footer class="action-bar">
+    <button
+      class="save-btn"
+      [disabled]="isSaveDisabled()"
+      (click)="saveChanges()"
+    >
+      @if (isLoading()) {
+        <span class="loader-spinner"></span>
+        Saving...
+      } @else {
+        {{
+          isSaveDisabled() && modifiedData().size === 0
+            ? "No changes"
+            : "Save Monthly Attendance"
+        }}
+      }
+    </button>
+  </footer>
 </div>

@@ -6,7 +6,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, RouterLink], // RouterLink handles navigation in HTML
+  imports: [FormsModule, RouterLink],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -24,7 +24,7 @@ export class LoginComponent {
       next: (res: any) => {
         const { access_token, user } = res.data.login;
         localStorage.setItem('access_token', access_token);
-        this.authService.currentUser.set(user); // Updating our Signal
+        this.authService.currentUser.set(user);
         this.router.navigate(['/dashboard']);
       },
       error: (err) => {

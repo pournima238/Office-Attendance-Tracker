@@ -4,7 +4,6 @@ import { Apollo, gql } from 'apollo-angular';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // Signal to store user data globally
   currentUser = signal<any>(null);
 
   constructor(private apollo: Apollo) {}
@@ -25,7 +24,7 @@ export class AuthService {
   }
 
   register(email: string, name: string, pass: string) {
-    console.log("inside register function");
+
     const REGISTER_MUTATION = gql`
       mutation Register($email: String!, $name: String!, $password: String!) {
         register(email: $email, name: $name, password: $password) {
@@ -50,7 +49,6 @@ export class AuthService {
       }
     }
   `;
-  // Get token from storage
   const token = localStorage.getItem('access_token');
   return this.apollo.query({
     query: GET_ATTENDANCE,
@@ -61,8 +59,6 @@ export class AuthService {
     fetchPolicy: 'network-only' // Ensures we get fresh data when switching months
   });
 }
-
-// ... inside AuthService class
 
 saveMonthlyAttendance(data: { date: string, type: string }[]) {
   const SAVE_MUTATION = gql`
@@ -78,5 +74,11 @@ saveMonthlyAttendance(data: { date: string, type: string }[]) {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
     }
   });
+}
+
+logout() {
+  localStorage.clear(); 
+  this.currentUser.set(null);
+  window.location.href = '/login';
 }
 }
