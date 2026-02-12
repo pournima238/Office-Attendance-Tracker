@@ -2,13 +2,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
   app.enableCors({
     origin: [
-      'http://localhost:4200', // For local development
-      'https://your-future-frontend-url.vercel.app' // Add your production URL later
+      'http://localhost:4200', // Keeps local development working
+      'https://office-attendance-tracker-brown.vercel.app' // Your actual Vercel URL
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
